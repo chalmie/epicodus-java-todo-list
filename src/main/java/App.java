@@ -1,7 +1,10 @@
-import java.util.HashMap;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 import spark.ModelAndView;
 import spark.template.velocity.VelocityTemplateEngine;
+
 
 import static spark.Spark.*;
 
@@ -12,6 +15,8 @@ public class App {
 
     get("/", (request, response) -> {
       HashMap<String, Object> model = new HashMap<String, Object>();
+      model.put("tasks", request.session().attribute("tasks"));
+
       model.put("template", "templates/index.vtl");
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
@@ -19,12 +24,20 @@ public class App {
     post("/tasks", (request, response) -> {
       HashMap<String, Object> model = new HashMap<String, Object>();
 
-      String description = request.queryParams("[name='description']");
+      ArrayList<Task> tasks = request.session().attribute("tasks");
+
+      if (tasks == null) {
+        tasks = new ArrayList<Task>();
+        request.session().attribute("tasks", tasks);
+      }
+
+      String description = request.queryParams("description");
       Task newTask = new Task(description);
-      request.session().attribute("task", newTask);
+
+      tasks.add(newTask);
 
       model.put("template", "templates/success.vtl");
       return new ModelAndView(model, layout);
-    }, new VelocityTemplateEngine());
+     }, new VelocityTemplateEngine());
   }
 }
