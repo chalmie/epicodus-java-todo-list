@@ -20,13 +20,22 @@ public class AppTest extends FluentTest {
 
   @ClassRule
   public static ServerRule server = new ServerRule();
-
+//INTEGRATION TESTING
   @Test
   public void rootTest() {
       goTo("http://localhost:4567/");
       assertThat(pageSource()).contains("Task list!");
   }
 
+  @Test
+  public void taskIsCreatedTest() {
+    goTo("http://localhost:4567/");
+    fill("[name='description']").with("Mow the lawn");
+    submit(".btn");
+    assertThat(pageSource()).contains("Your task has been saved.");
+  }
+
+// UNIT TESTING
   @Test
   public void Task_instantiatesCorrectly_true() {
     Task myTask = new Task("Mow the lawn");
